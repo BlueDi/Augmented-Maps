@@ -6,7 +6,8 @@ from image import *
 from kaze import *
 
 
-IMAGE_FOLDER = '../resources/db'
+DB_FOLDER = '../resources/db'
+IMAGE_FOLDER = '../resources/images'
 IMAGE_TEST = '../resources/test/clerigos.png'
 WINDOW_NAME = 'match'
 
@@ -19,8 +20,8 @@ def search_all():
     best_matches = 0
     best_path = 0
     image_test = open_image(IMAGE_TEST)
-    for f in os.listdir(IMAGE_FOLDER):
-        img_path = os.path.join(IMAGE_FOLDER,f)
+    for f in os.listdir(DB_FOLDER):
+        img_path = os.path.join(DB_FOLDER, f)
         img = open_image(img_path)
         _, _, _, _, filtered_matches, _ = kaze_match_results(img, image_test)
         if len(filtered_matches) > best_matches:
@@ -36,8 +37,17 @@ def click_map_callback(event, x, y, flags, param):
     When left click the image, print the x and y
     """
     if event == cv.EVENT_LBUTTONDOWN:
-        cv.circle(param, (x,y), 100, (255,0,0), -1)
-        print x, y
+        print 'Coords:', x, y
+        image_name = raw_input('Image name: ')
+        image_path = os.path.join(IMAGE_FOLDER, image_name)
+        print 'Path:', image_path
+        feature_point =	{
+            image_name: {
+                'path': image_path,
+                'x': x,
+                'y': y
+            }
+        }
 
 
 def click_map(image):
