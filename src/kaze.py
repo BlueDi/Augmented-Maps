@@ -13,10 +13,13 @@ def kaze_get_features(image):
 
 
 def filter_matches_by_distance(matches):
+    """
+    Remove the most distant matching points
+    """
     filteredMatches = []
     matches = sorted(matches, key = lambda x:x.distance)
-    ptsPairs = min(400, len(matches)*0.3)
-    filteredMatches = matches[:ptsPairs]
+    ptsPairs = min(400, len(matches) * 0.3)
+    filteredMatches = matches[:int(ptsPairs)]
     return filteredMatches
 
 
