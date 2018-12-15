@@ -1,6 +1,6 @@
 import cv2 as cv
 
-def openImage(filename):
+def open_image(filename):
     """Opens the image as gray scale"""
     image = cv.imread(filename)
     try:

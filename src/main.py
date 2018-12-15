@@ -7,10 +7,10 @@ from kaze import *
 
 def main():
     #Open image
-    image_name1 = '../resources/poster1.jpg'
-    image_name2 = '../resources/poster2.jpg'
-    image1 = openImage(image_name1)
-    image2 = openImage(image_name2)
+    image_name1 = '../resources/porto_mapa.png'
+    image_name2 = '../resources/porto_mapa2.png'
+    image1 = open_image(image_name1)
+    image2 = open_image(image_name2)
     cv.imshow('image', image1)
 
     #1. Extracting local features
