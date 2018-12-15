@@ -1,11 +1,8 @@
 import cv2 as cv
-import os, os.path
-import pickle
+import os
+from augment import *
 from database import *
 from display import *
-from fast import *
-from image import *
-from kaze import *
 
 
 DB_FOLDER = '../resources/db'
@@ -14,25 +11,6 @@ IMAGE_FOLDER = '../resources/images'
 IMAGE_TEST = '../resources/test/clerigos.png'
 WINDOW_NAME = 'match'
 feature_points = {}
-
-
-def search_all():
-    """
-    Search in the db for the best match
-    """
-    best_img = 0
-    best_matches = 0
-    best_path = 0
-    image_test = open_image(IMAGE_TEST)
-    for f in os.listdir(DB_FOLDER):
-        img_path = os.path.join(DB_FOLDER, f)
-        img = open_image(img_path)
-        _, _, _, _, filtered_matches, _ = kaze_match_results(img, image_test)
-        if len(filtered_matches) > best_matches:
-            best_img = img
-            best_matches = len(filtered_matches)
-            best_path = img_path
-    return best_img, best_path
 
 
 def click_map_callback(event, x, y, flags, param):
@@ -71,7 +49,7 @@ def click_map(image):
 def main():
     global feature_points
     feature_points = load_db(DB_NAME)
-    img, path = search_all()
+    img, path = search_all(IMAGE_TEST, DB_FOLDER)
     click_map(img)
     save_db(DB_NAME, feature_points)
 
