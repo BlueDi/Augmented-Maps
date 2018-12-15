@@ -1,22 +1,21 @@
 import cv2 as cv
 import os
-from augment import *
-from database import *
-from display import *
-from preparation import *
+import augment as aug
+import database as db
+import preparation as prep
 
 
 DB_FOLDER = '../resources/db'
-DB_NAME = '../resources/feature_points.dat'
+DB_NAME = '../resources/feature_points.pkl'
 IMAGE_TEST = '../resources/test/clerigos.png'
 WINDOW_NAME = 'match'
 
 
 def main():
-    feature_points = load_db(DB_NAME)
-    img, path = search_all(IMAGE_TEST, DB_FOLDER)
-    click_map(img, feature_points, WINDOW_NAME)
-    save_db(DB_NAME, feature_points)
+    points_of_interest = db.load_db(DB_NAME)
+    prep.click_map(points_of_interest, WINDOW_NAME)
+    img, path = aug.search_all(IMAGE_TEST, DB_FOLDER, True)
+    db.save_db(DB_NAME, points_of_interest)
 
 if __name__ == '__main__':
     main()

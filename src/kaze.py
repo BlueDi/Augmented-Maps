@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 
 
-def kaze_get_features(image):
+def get_features(image):
     """
     KAZE feature extract & display
     """
@@ -39,7 +39,7 @@ def filter_matches_RANSAC(matches, keypointsA, keypointsB):
     return homography, filteredMatches
 
 
-def kaze_match_results(image1, image2):
+def match_results(image1, image2):
     """
     Match features from 2 images
     First extract KAZE features of both images

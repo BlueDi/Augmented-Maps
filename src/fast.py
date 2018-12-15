@@ -1,10 +1,9 @@
 import cv2 as cv
 
 
-def fast_get_features(image):
+def get_features(image):
     """
-    First part of exercises
-    FAST & KAZE feature extract & display
+    FAST feature extract & display
     """
     fast = cv.FastFeatureDetector_create()
     fast_kp = fast.detect(image, None)
