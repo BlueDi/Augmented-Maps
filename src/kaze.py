@@ -52,5 +52,20 @@ def match_results(image1, image2):
     matches = matcher.match(kaze_desc1, kaze_desc2)
     distance_matches = filter_matches_by_distance(matches)
     homography, filtered_matches = filter_matches_RANSAC(distance_matches, kaze_kp1, kaze_kp2)
-    return image1, kaze_kp1, image2, kaze_kp2, filtered_matches, homography
+    return kaze_kp1, kaze_desc1, kaze_kp2, kaze_desc2, filtered_matches, homography
+
+
+def short_match_results(kaze_kp1, kaze_desc1, image2):
+    """
+    Match features from 2 images
+    Must pass KAZE features of first image
+    Then match the returned features
+    """
+    detector = cv.KAZE_create()
+    matcher = cv.FlannBasedMatcher()
+    kaze_kp2, kaze_desc2 = detector.detectAndCompute(image2, None)
+    matches = matcher.match(kaze_desc1, kaze_desc2)
+    distance_matches = filter_matches_by_distance(matches)
+    homography, filtered_matches = filter_matches_RANSAC(distance_matches, kaze_kp1, kaze_kp2)
+    return filtered_matches, homography
 
