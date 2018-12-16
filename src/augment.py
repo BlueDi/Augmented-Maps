@@ -57,8 +57,10 @@ def search_all(image_path, db_path, display=False):
 
     feature_points = db.load_db(db_path)
 
+    print 'Calculating feature points'
     for f in os.listdir(DB_FOLDER):
         best, feature_points = analyse(f, image_test, feature_points, best)
+    print 'Finished calculating feature points'
 
     if display:
         compare(best['img'], image_test)
