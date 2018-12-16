@@ -25,7 +25,7 @@ def analyse(file_name, image_test, feature_points, best):
 
     if file_name in feature_points:
         kaze_features = feature_points[file_name]
-        kp = list_to_kp(kaze_features['kp_list'])
+        kp = utils.list_to_kp(kaze_features['kp_list'])
         filtered_matches, _ = kaze.short_match_results(kp, kaze_features['desc'], image_test)
     else:
         kp, desc, _, _, filtered_matches, _ = kaze.match_results(image, image_test)
