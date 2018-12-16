@@ -37,5 +37,4 @@ def click_map(database, window_name="Preparation"):
     cv.setMouseCallback(window_name, click_map_callback, database)
 
     cv.imshow(window_name, map_image)
-    cv.waitKey(0)
 
