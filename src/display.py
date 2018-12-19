@@ -22,4 +22,3 @@ def transform_with_homography(image, homography):
     dsize = (image.shape[1], image.shape[0])
     new_image = cv.warpPerspective(image, homography, dsize)
     cv.imshow("Homographied image", new_image)
-

@@ -3,16 +3,52 @@ import database as db
 import display as disp
 import image as img
 import kaze
+import numpy as np
 import utils
+import cv2 as cv
+import math
 
 
 DB_FOLDER = '../resources/db'
 
+def applyHomography(homography, points_of_interest, image1, image2):
 
-def compare(image1, image2):
+    width, heigth = image2.shape
+    xCenter = int(round(width/2.0))
+    yCenter = int(round(heigth/2.0))
+    closest_point = {
+        'name': None,
+        'distance': 99999,
+        'x': 0,
+        'y': 0,
+        'originX': 0,
+        'originY': 0
+    }
+    
+    for name, point in points_of_interest.items():
+        origin = np.array([[point['x']], [point['y']], [1]])
+        points = np.matmul(homography, origin)
+        pX = int(round(points[0]/points[2]))
+        pY = int(round(points[1]/points[2]))
+        dist = math.hypot(xCenter - pX, yCenter - pY)
+        if(dist < closest_point['distance'] and pX >= 0 and pX < width and pY >= 0 and pY < heigth):
+            closest_point['name'] = name
+            closest_point['distance'] = dist
+            closest_point['x'] = pX
+            closest_point['y'] = pY
+            closest_point['originX'] = point['x']
+            closest_point['originY'] = point['y']
+
+    backtorgb = cv.cvtColor(image2,cv.COLOR_GRAY2RGB)
+    cv.circle(backtorgb, (closest_point['x'], closest_point['y']), 7, (0,255,255), -1)
+    cv.circle(backtorgb, (closest_point['x'], closest_point['y']), 7, (0,0,0), 1)
+    cv.imshow("Augmented", backtorgb)   
+
+
+def augment(image1, image2, points_of_interest):
     kaze_kp1, _, kaze_kp2, _, filtered_matches, homography = kaze.match_results(image1, image2)
+    applyHomography(homography, points_of_interest, image1, image2)
     disp.show_match_result(image1, kaze_kp1, image2, kaze_kp2, filtered_matches, homography)
-
 
 def analyse(file_name, image_test, feature_points, best):
     """
@@ -44,7 +80,7 @@ def analyse(file_name, image_test, feature_points, best):
         best['path'] = img_path
     return best, feature_points
 
-def search_all(image_path, db_path, display=False):
+def search_all(image_path, db_path, points_of_interest, display=False):
     """
     Search in the db for the best match
     """
@@ -63,7 +99,7 @@ def search_all(image_path, db_path, display=False):
     print 'Finished calculating feature points'
 
     if display:
-        compare(best['img'], image_test)
+        augment(best['img'], image_test, points_of_interest)
 
     db.save_db(db_path, feature_points)
     return best['img'], best['path']
