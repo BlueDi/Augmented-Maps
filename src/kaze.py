@@ -67,5 +67,5 @@ def short_match_results(kaze_kp1, kaze_desc1, image2):
     matches = matcher.match(kaze_desc1, kaze_desc2)
     distance_matches = filter_matches_by_distance(matches)
     homography, filtered_matches = filter_matches_RANSAC(distance_matches, kaze_kp1, kaze_kp2)
-    return filtered_matches, homography
+    return filtered_matches, homography, kaze_kp2
 
