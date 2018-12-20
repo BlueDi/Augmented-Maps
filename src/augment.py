@@ -14,8 +14,8 @@ DB_FOLDER = '../resources/db'
 def applyHomography(homography, points_of_interest, image1, image2):
 
     width, heigth = image2.shape
-    xCenter = int(round(width/2.0))
-    yCenter = int(round(heigth/2.0))
+    xCenter = int(round(heigth/2.0))
+    yCenter = int(round(width/2.0))
     closest_point = {
         'name': None,
         'distance': 99999,
@@ -40,9 +40,26 @@ def applyHomography(homography, points_of_interest, image1, image2):
             closest_point['originY'] = point['y']
 
     backtorgb = cv.cvtColor(image2,cv.COLOR_GRAY2RGB)
-    cv.circle(backtorgb, (closest_point['x'], closest_point['y']), 7, (0,255,255), -1)
-    cv.circle(backtorgb, (closest_point['x'], closest_point['y']), 7, (0,0,0), 1)
+
+    place_center(backtorgb, xCenter, yCenter)
+    place_compass(backtorgb, xCenter, yCenter)
+    place_closest_interest(backtorgb, closest_point)
+
     cv.imshow("Augmented", backtorgb)   
+
+def place_center(image, x, y):
+    cv.circle(image, (x,y), 7, (19, 255, 255), -1)
+    cv.circle(image, (x,y), 7, (0,0,0), 1)
+    pass
+
+def place_compass(image, x, y):
+    pass
+
+
+def place_closest_interest(image, closest_point):
+    if(closest_point['name'] is not None): #Green
+        cv.circle(image, (closest_point['x'], closest_point['y']), 7, (19, 124, 17), -1)
+        cv.circle(image, (closest_point['x'], closest_point['y']), 7, (0,0,0), 1)
 
 
 def augment(image1, image2, points_of_interest):

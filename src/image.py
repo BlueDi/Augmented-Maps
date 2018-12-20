@@ -9,4 +9,3 @@ def open_image(filename):
         print(" --(!) Error reading image ", filename)
         return None
     return image
-

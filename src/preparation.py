@@ -4,7 +4,6 @@ import image as img
 
 
 IMAGE_FOLDER = '../resources/images'
-MAP_PATH = '../resources/db/porto_mapa.png'
 
 
 def click_map_callback(event, x, y, flags, database):
@@ -27,12 +26,12 @@ def click_map_callback(event, x, y, flags, database):
         database.update(point_of_interest)
 
 
-def click_map(database, window_name="Preparation"):
+def click_map(database, image_base, window_name="Preparation"):
     """
     Create the callback for the image
     Display the image
     """
-    map_image = img.open_image(MAP_PATH)
+    map_image = img.open_image(image_base)
     cv.namedWindow(window_name)
     cv.setMouseCallback(window_name, click_map_callback, database)
 
