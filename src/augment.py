@@ -108,7 +108,7 @@ def main():
 
     if DEBUG: 
         print("Displaying matching results")
-        disp.show_match_result(image_base, kp, image_test, kp2, filtered_matches, homography)
+        disp.show_match_result(image_base_display, image_test_display, kp, kp2, filtered_matches, homography)
     
     if DEBUG: print("Applying Augmented Components")
     applyAugmentedComponents(homography, image_base_display, image_test_display)
