@@ -3,21 +3,23 @@ import os
 import database as db
 import image as img
 import utils
+import sys
 
 
-DB_FOLDER = '../resources/db'
+DB_POI = '../resources/points_of_interest.pkl'
 DB_FP = '../resources/feature_points.pkl'
-IMAGE_BASE = 'porto_mapa.png'
 IMAGE_FOLDER = '../resources/images'
+IMAGE_BASE = '../resources/db/porto_original.png'
 
+DEBUG = False
 
-def set_feature_point(file_name, db_path):
+def calculate_feature_points(file_name, db_path):
     """
-    Analyses 2 images and compares with the best result
+    Analyzes 2 images and compares with the best result
     If the image is stored on the db, it uses the values from the db
     Else calculates de kaze features and saves them to the db
     """
-    image = img.open_image(file_name)
+    image = img.open_image_for_process(file_name)
     feature_points = db.load_db(db_path)
 
     if file_name in feature_points:
@@ -70,21 +72,36 @@ def click_map(database, image_base, window_name="Preparation"):
     Create the callback for the image
     Display the image
     """
-    map_image = img.open_image(image_base)
+    map_image = img.open_image_for_display(image_base)
     cv.namedWindow(window_name)
     cv.setMouseCallback(window_name, click_map_callback, database)
 
     cv.imshow(window_name, map_image)
+    cv.waitKey(0)
 
 
 def main():
-    DB_POI = '../resources/points_of_interest.pkl'
-    IMAGE_BASE = '../resources/db/porto_mapa.png'
 
+    if(len(sys.argv) > 1 and (sys.argv[1] == '--debug' or sys.argv[1] == '-d')):
+        DEBUG = True
+    else:
+        DEBUG = False
+
+    '''
+    Initializng Preparation
+    '''
+
+    if DEBUG: print("Loading Points of interest databse")
     points_of_interest = db.load_db(DB_POI)
+    
+    if DEBUG: print("Waiting for Points of interest")
     click_map(points_of_interest, IMAGE_BASE, window_name="Preparation")
+
+    if DEBUG: print("Saving Points of Interest")
     db.save_db(DB_POI, points_of_interest)
-    set_feature_point(IMAGE_BASE, DB_FP)
+
+    if DEBUG: print("Calculating Feature Points")
+    calculate_feature_points(IMAGE_BASE, DB_FP)
 
 
 if __name__ == '__main__':
