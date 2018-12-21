@@ -4,6 +4,7 @@ import database as db
 import image as img
 import utils
 import sys
+import display as disp
 
 
 DB_POI = '../resources/points_of_interest.pkl'
@@ -47,7 +48,7 @@ def calculate_feature_points(file_name, db_path):
     return best
 
 
-def click_map_callback(event, x, y, flags, database):
+def click_map_callback(event, x, y, flags, param):
     """
     Callback for the image
     When left click the image, print the x and y
@@ -64,7 +65,17 @@ def click_map_callback(event, x, y, flags, database):
                 'y': y
             }
         }
-        database.update(point_of_interest)
+        param['db'].update(point_of_interest)
+
+        point = {
+            'name': image_name,
+            'x': x,
+            'y': y
+        }
+        disp.place_intereset_point(param['img'], point)
+        cv.imshow(param['window'],param['img'])
+
+
 
 
 def click_map(database, image_base, window_name="Preparation"):
@@ -72,10 +83,20 @@ def click_map(database, image_base, window_name="Preparation"):
     Create the callback for the image
     Display the image
     """
+    if DEBUG: print("Loading image")
     map_image = img.open_image_for_display(image_base)
     cv.namedWindow(window_name)
-    cv.setMouseCallback(window_name, click_map_callback, database)
 
+    if DEBUG: print("Displaying existing points")
+    for name, point in database.items():
+        point = {'name': name, 'x': point['x'], 'y': point['y']}
+        disp.place_intereset_point(map_image, point)
+
+    if DEBUG: print("Creating callback")
+    param = {'db': database, 'img': map_image, 'window': window_name}
+    cv.setMouseCallback(window_name, click_map_callback, param)
+
+    if DEBUG: print("Displaying image")
     cv.imshow(window_name, map_image)
     cv.waitKey(0)
 

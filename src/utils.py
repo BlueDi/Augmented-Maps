@@ -1,4 +1,6 @@
 import cv2 as cv
+import numpy as np
+import math
 
 
 def kp_to_list(kp):
@@ -26,3 +28,13 @@ def list_to_kp(kp_list):
         kp.append(temp)
     return kp
 
+def map_coordinates(matrix, x, y):
+    origin = np.array([[x], [y], [1]])
+    points = np.matmul(matrix, origin)
+    pX = int(round(points[0]/points[2]))
+    pY = int(round(points[1]/points[2]))
+    return pX, pY
+
+def calculate_distance(x1, y1, x2, y2):
+    dist = math.hypot(x1 - x2, y1 - y2)
+    return dist

@@ -8,6 +8,7 @@ import utils
 import cv2 as cv
 import math
 import sys
+import utils
 
 
 DB_FP = '../resources/feature_points.pkl'
@@ -18,12 +19,23 @@ IMAGE_TEST = '../resources/test/porto_rotate.jpg'
 DEBUG = False
 
 
-def applyAugmentedComponents(homography, image_base_display, image_base_test):
+def applyAugmentedComponents(homography, image_base_display, image_test_display):
+    
+    if DEBUG: print("Loading Points of Interest from Database")
     points_of_interest = db.load_db(DB_POI)
 
-    width, heigth = image_base_test.shape[:2]
+    if DEBUG: print("Calculating inverse homography")
+    inverse = np.linalg.inv(homography)
+
+    if DEBUG: print("Placing center")
+    width, heigth = image_test_display.shape[:2]
     xCenter = int(round(heigth/2.0))
     yCenter = int(round(width/2.0))
+    disp.place_center(image_test_display, xCenter, yCenter)
+
+    if DEBUG: print("Mapping center to original image")
+    xOriginal, yOriginal = utils.map_coordinates(inverse, xCenter, yCenter)
+
     closest_point = {
         'name': None,
         'distance': 99999,
@@ -33,12 +45,12 @@ def applyAugmentedComponents(homography, image_base_display, image_base_test):
         'originY': 0
     }
     
+
+    if DEBUG: print("Find closest interest point")
     for name, point in points_of_interest.items():
-        origin = np.array([[point['x']], [point['y']], [1]])
-        points = np.matmul(homography, origin)
-        pX = int(round(points[0]/points[2]))
-        pY = int(round(points[1]/points[2]))
-        dist = math.hypot(xCenter - pX, yCenter - pY)
+        dist = utils.calculate_distance(xOriginal, yOriginal, point['x'], point['y'])
+        pX, pY = utils.map_coordinates(homography, point['x'], point['y'])
+
         if(dist < closest_point['distance'] and pX >= 0 and pX < width and pY >= 0 and pY < heigth):
             closest_point['name'] = name
             closest_point['distance'] = dist
@@ -47,29 +59,12 @@ def applyAugmentedComponents(homography, image_base_display, image_base_test):
             closest_point['originX'] = point['x']
             closest_point['originY'] = point['y']
 
-    place_center(image_base_test, xCenter, yCenter)
-    place_compass(image_base_test, xCenter, yCenter)
-    place_closest_interest(image_base_test, closest_point)
+    if DEBUG: print("Placing closest point")
+    if(closest_point['name'] is not None):
+        disp.place_intereset_point(image_test_display, closest_point)
 
-    cv.imshow("Augmented", image_base_test)
+    cv.imshow("Augmented", image_test_display)
     cv.waitKey(0)   
-
-
-def place_center(image, x, y):
-    cv.circle(image, (x,y), 7, (19, 255, 255), -1)
-    cv.circle(image, (x,y), 7, (0,0,0), 1)
-    pass
-
-
-def place_compass(image, x, y):
-    pass
-
-
-def place_closest_interest(image, closest_point):
-    if(closest_point['name'] is not None): #Green
-        cv.circle(image, (closest_point['x'], closest_point['y']), 7, (19, 124, 17), -1)
-        cv.circle(image, (closest_point['x'], closest_point['y']), 7, (0,0,0), 1)
-
 
 
 def get_kp(file_name):

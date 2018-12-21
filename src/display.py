@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 
+CIRCLE_SIZE = 7
 
 def show_match_result(image_base,  image_test, keypointsA, keypointsB, matches, homography=None):
 
@@ -35,5 +36,39 @@ def transform_with_inverse_homography(image, homography):
     dsize = (image.shape[1], image.shape[0])
     new_image = cv.warpPerspective(image, inverse, dsize)
     cv.imshow("Homographied inverse image", new_image)
+
+def place_center(image, x, y):
+    cv.circle(image, (x,y), 7, (19, 255, 255), -1)
+    cv.circle(image, (x,y), 7, (0,0,0), 1)
+    pass
+
+
+def place_compass(image, x, y):
+    pass
+
+'''
+    point = {
+        'name': None,
+        'distance': 99999,
+        'x': 0,
+        'y': 0,
+        'originX': 0,
+        'originY': 0
+    }
+'''
+def place_intereset_point(image, point):
+    if(point['name'] is not None): #Green
+        cv.circle(image, (point['x'], point['y']), CIRCLE_SIZE, (19, 124, 17), -1)
+        cv.circle(image, (point['x'], point['y']), CIRCLE_SIZE, (0,0,0), 1)
+        place_label(point['x'], point['y'], point['name'], image)
+    return image
+
+def place_label(xCenter, yCenter, label, image):
+    size = cv.getTextSize(label, cv.FONT_HERSHEY_PLAIN, 1, 2)
+    w = size[0][0]
+    x = xCenter - int(round(w/2.0))
+    y = yCenter - int(round(CIRCLE_SIZE/2.0)) - 4
+    cv.putText(image, label, (x, y), cv.FONT_HERSHEY_PLAIN, 1, (0,0,0), 2)
+
 
 
