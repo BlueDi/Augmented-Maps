@@ -1,3 +1,4 @@
+import argparse
 import cv2 as cv
 import os
 import database as db
@@ -101,16 +102,17 @@ def click_map(database, image_base, window_name="Preparation"):
     cv.waitKey(0)
 
 
+def parse_arguments():
+    '''Checks for flags'''
+    parser = argparse.ArgumentParser(description="Prepare the map image")
+    parser.add_argument('-d','--debug', action='store_true', help='Debug Mode')
+    args = parser.parse_args()
+    DEBUG = args.debug
+
+
 def main():
-
-    if(len(sys.argv) > 1 and (sys.argv[1] == '--debug' or sys.argv[1] == '-d')):
-        DEBUG = True
-    else:
-        DEBUG = False
-
-    '''
-    Initializng Preparation
-    '''
+    '''Initializing Preparation'''
+    parse_arguments()
 
     if DEBUG: print("Loading Points of interest databse")
     points_of_interest = db.load_db(DB_POI)
@@ -124,6 +126,7 @@ def main():
     if DEBUG: print("Calculating Feature Points")
     calculate_feature_points(IMAGE_BASE, DB_FP)
 
+    if DEBUG: print("Successful, exiting Preparation")
 
 if __name__ == '__main__':
     main()

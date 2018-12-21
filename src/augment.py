@@ -79,16 +79,16 @@ def get_kp(file_name):
     return kp, kaze_features['desc']
 
 
+def parse_arguments():
+    '''Checks for flags'''
+    parser = argparse.ArgumentParser(description="Augment the map image")
+    parser.add_argument('-d','--debug', action='store_true', help='Debug Mode')
+    args = parser.parse_args()
+    DEBUG = args.debug
+
+
 def main():
-
-    if(len(sys.argv) > 1 and (sys.argv[1] == '--debug' or sys.argv[1] == '-d')):
-        DEBUG = True
-    else:
-        DEBUG = False
-
-    '''
-    Initializing Augmentation
-    '''
+    '''Initializing Augmentation'''
     if DEBUG: print("Loading Feature Points")
     kp, desc = get_kp(IMAGE_BASE)
     
@@ -107,6 +107,8 @@ def main():
     
     if DEBUG: print("Applying Augmented Components")
     applyAugmentedComponents(homography, image_base_display, image_test_display)
+
+    if DEBUG: print("Successful, exiting Augment")
 
 if __name__ == '__main__':
     main()
