@@ -1,4 +1,6 @@
 import cv2 as cv
+import numpy as np
+import utils
 
 def open_image_for_process(filename):
     """Opens the image as gray scale"""
@@ -12,7 +14,7 @@ def open_image_for_process(filename):
     return image
 
 def open_image_for_display(filename):
-    """Opens the image as gray scale"""
+    """Opens the image for display"""
     try:
         image = cv.imread(filename)
         image = image_resize(image)
