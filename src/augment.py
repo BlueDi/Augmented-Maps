@@ -1,3 +1,4 @@
+import argparse
 import os
 import database as db
 import display as disp
@@ -93,6 +94,8 @@ def main():
     parse_arguments()
 
     '''Initializing Augmentation'''
+    parse_arguments()
+
     if DEBUG: print("Loading Feature Points")
     kp, desc = get_kp(IMAGE_BASE)
     
