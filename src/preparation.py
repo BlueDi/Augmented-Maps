@@ -107,6 +107,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Prepare the map image")
     parser.add_argument('-d','--debug', action='store_true', help='Debug Mode')
     args = parser.parse_args()
+    global DEBUG
     DEBUG = args.debug
 
 

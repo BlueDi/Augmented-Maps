@@ -9,7 +9,7 @@ import cv2 as cv
 import math
 import sys
 import utils
-
+import argparse
 
 DB_FP = '../resources/feature_points.pkl'
 DB_POI = '../resources/points_of_interest.pkl'
@@ -46,7 +46,7 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
     }
     
 
-    if DEBUG: print("Find closest interest point")
+    if DEBUG: print("Finding closest interest point")
     for name, point in points_of_interest.items():
         dist = utils.calculate_distance(xOriginal, yOriginal, point['x'], point['y'])
         pX, pY = utils.map_coordinates(homography, point['x'], point['y'])
@@ -84,10 +84,14 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Augment the map image")
     parser.add_argument('-d','--debug', action='store_true', help='Debug Mode')
     args = parser.parse_args()
+    global DEBUG 
     DEBUG = args.debug
 
 
 def main():
+
+    parse_arguments()
+
     '''Initializing Augmentation'''
     if DEBUG: print("Loading Feature Points")
     kp, desc = get_kp(IMAGE_BASE)
