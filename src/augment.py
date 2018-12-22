@@ -10,7 +10,6 @@ import cv2 as cv
 import math
 import sys
 import utils
-import argparse
 
 DB_FP = '../resources/feature_points.pkl'
 DB_POI = '../resources/points_of_interest.pkl'
@@ -90,8 +89,6 @@ def parse_arguments():
 
 
 def main():
-
-    parse_arguments()
 
     '''Initializing Augmentation'''
     parse_arguments()
