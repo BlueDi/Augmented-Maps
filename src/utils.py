@@ -40,26 +40,6 @@ def calculate_distance(x1, y1, x2, y2):
     dist = math.hypot(x1 - x2, y1 - y2)
     return dist
 
-def unit_vector(vector):
-    """ Returns the unit vector of the vector.  """
-    return vector / np.linalg.norm(vector)
-
-def angle_between(x1,y1,x2,y2,x3,y3,x4,y4):
-    """ Returns the angle in radians between vectors 'v1' and 'v2'::
-
-            >>> angle_between((1, 0, 0), (0, 1, 0))
-            1.5707963267948966
-            >>> angle_between((1, 0, 0), (1, 0, 0))
-            0.0
-            >>> angle_between((1, 0, 0), (-1, 0, 0))
-            3.141592653589793
-    """
-    v1 = (x2-x1, y2-y1)
-    v2 = (x4-x3, y4-y3)
-    v1_u = unit_vector(v1)
-    v2_u = unit_vector(v2)
-    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
-
 def angle(px1,py1,px2,py2,px3,py3,px4,py4):
 
     x1 = px2 - px1
