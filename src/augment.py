@@ -29,9 +29,9 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
     inverse = np.linalg.inv(homography)
 
     if DEBUG: print("Calculating important")
-    width, heigth = image_test_display.shape[:2]
-    xCenter = int(round(heigth/2.0))
-    yCenter = int(round(width/2.0))
+    heigth, width = image_test_display.shape[:2]
+    xCenter = int(round(width/2.0))
+    yCenter = int(round(heigth/2.0))
 
     if DEBUG: print("Placing center")
     disp.place_center(image_test_display, xCenter, yCenter)
@@ -41,7 +41,7 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
 
     closest_point = {
         'name': None,
-        'distance': 99999,
+        'distance': 999999999999999999,
         'x': 0,
         'y': 0,
         'originX': 0,
@@ -54,6 +54,8 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
         dist = utils.calculate_distance(xOriginal, yOriginal, point['x'], point['y'])
         pX, pY = utils.map_coordinates(homography, point['x'], point['y'])
 
+        print(dist, pX, pY, name, width, heigth)
+
         if(dist < closest_point['distance'] and pX >= 0 and pX < width and pY >= 0 and pY < heigth):
             closest_point['name'] = name
             closest_point['distance'] = dist
@@ -65,6 +67,7 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
     if DEBUG: print("Placing closest point")
     if(closest_point['name'] is not None):
         disp.place_intereset_point(image_test_display, closest_point)
+
 
     if DEBUG: print("Placing compass")
     disp.place_compass(inverse, image_test_display, xCenter, yCenter, closest_point['x'], closest_point['y'])
