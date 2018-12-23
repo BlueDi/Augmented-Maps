@@ -64,16 +64,16 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
             closest_point['originX'] = point['x']
             closest_point['originY'] = point['y']
 
-    if DEBUG: print("Placing closest point")
-    if(closest_point['name'] is not None):
-        disp.place_intereset_point(image_test_display, closest_point)
-
-    if DEBUG: print("Placing compass")
-    disp.place_compass(inverse, image_test_display, xCenter, yCenter, closest_point['x'], closest_point['y'])
-
     if DEBUG: print("Calculationg real distance")
     if(closest_point['name'] is not None):
         distance_km = 290 * closest_point['distance'] / 57
+
+    if DEBUG: print("Placing closest point")
+    if(closest_point['name'] is not None):
+        disp.place_intereset_point(image_test_display, closest_point, distance_km)
+
+    if DEBUG: print("Placing compass")
+    disp.place_compass(inverse, image_test_display, xCenter, yCenter, closest_point['x'], closest_point['y'])
 
     if DEBUG: print("Getting images of point")
     if(closest_point['name'] is not None):
