@@ -10,7 +10,6 @@ import display as disp
 
 DB_POI = '../resources/points_of_interest.pkl'
 DB_FP = '../resources/feature_points.pkl'
-IMAGE_FOLDER = '../resources/images'
 IMAGE_BASE = '../resources/db/porto_original.png'
 
 DEBUG = False
@@ -56,12 +55,9 @@ def click_map_callback(event, x, y, flags, param):
     """
     if event == cv.EVENT_LBUTTONDOWN:
         print 'Coords:', x, y
-        image_name = raw_input('Image name: ')
-        image_path = os.path.join(IMAGE_FOLDER, image_name)
-        print 'Path:', image_path
+        name = raw_input('Image name: ')
         point_of_interest =	{
-            image_name: {
-                'path': image_path,
+            name: {
                 'x': x,
                 'y': y
             }
@@ -69,7 +65,7 @@ def click_map_callback(event, x, y, flags, param):
         param['db'].update(point_of_interest)
 
         point = {
-            'name': image_name,
+            'name': name,
             'x': x,
             'y': y
         }

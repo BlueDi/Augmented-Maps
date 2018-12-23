@@ -14,7 +14,8 @@ import utils
 DB_FP = '../resources/feature_points.pkl'
 DB_POI = '../resources/points_of_interest.pkl'
 IMAGE_BASE = '../resources/db/porto_original.png'
-IMAGE_TEST = '../resources/test/porto_scale.jpg'
+IMAGE_TEST = '../resources/test/porto_rotate_plus.jpg'
+IMAGE_FOLDER = '../resources/images'
 
 DEBUG = False
 
@@ -41,14 +42,13 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
 
     closest_point = {
         'name': None,
-        'distance': 999999999999999999,
+        'distance': 9999,
         'x': 0,
         'y': 0,
         'originX': 0,
         'originY': 0
     }
     
-
     if DEBUG: print("Finding closest interest point")
     for name, point in points_of_interest.items():
         dist = utils.calculate_distance(xOriginal, yOriginal, point['x'], point['y'])
@@ -68,10 +68,17 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
     if(closest_point['name'] is not None):
         disp.place_intereset_point(image_test_display, closest_point)
 
-
     if DEBUG: print("Placing compass")
     disp.place_compass(inverse, image_test_display, xCenter, yCenter, closest_point['x'], closest_point['y'])
 
+    if DEBUG: print("Calculationg real distance")
+    if(closest_point['name'] is not None):
+        distance_km = 290 * closest_point['distance'] / 57
+
+    if DEBUG: print("Getting images of point")
+    if(closest_point['name'] is not None):
+        disp.create_slideshow(closest_point['name'], distance_km, IMAGE_FOLDER)
+    
     cv.imshow("Augmented", image_test_display)
     cv.waitKey(0)   
 

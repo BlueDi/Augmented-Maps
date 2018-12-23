@@ -2,8 +2,11 @@ import cv2 as cv
 import numpy as np
 import image as img
 import utils
+import os
+import re
 
 CIRCLE_SIZE = 7
+CURRENT = 0
 
 def show_match_result(image_base,  image_test, keypointsA, keypointsB, matches, homography=None):
 
@@ -158,6 +161,37 @@ def place_label(xCenter, yCenter, label, image):
     x = xCenter - int(round(w/2.0))
     y = yCenter - int(round(CIRCLE_SIZE/2.0)) - 4
     cv.putText(image, label, (x, y), cv.FONT_HERSHEY_PLAIN, 1, (0,0,0), 2)
+
+
+def transition(event, x, y, flags, param):
+    
+    if event ==  cv.EVENT_LBUTTONUP:
+        windowName, images = param
+        global CURRENT
+        CURRENT += 1
+        if CURRENT >= len(images):
+            CURRENT = 0
+        image = cv.imread(images[CURRENT],cv.IMREAD_UNCHANGED)
+        cv.namedWindow(windowName)
+        cv.imshow(windowName, image)
+
+def create_slideshow(name, distance_km, IMAGE_FOLDER):
+    
+    pattern = name + '*'
+    prog = re.compile(pattern)
+    images = []
+    clicked = 0
+    
+    for _, _, files in os.walk(IMAGE_FOLDER):  
+        for filename in files:
+            if prog.match(filename) is not None:
+                images.append(os.path.join(IMAGE_FOLDER, filename))
+
+    windowName = name + " - " + str(int(round(distance_km))) + " m"
+    image = cv.imread(images[0],cv.IMREAD_UNCHANGED)
+    cv.namedWindow(windowName)
+    cv.imshow(windowName, image)
+    cv.setMouseCallback(windowName, transition, (windowName, images))
 
 
 
