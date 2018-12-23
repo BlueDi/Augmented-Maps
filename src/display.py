@@ -180,12 +180,14 @@ def create_slideshow(name, distance_km, IMAGE_FOLDER):
     pattern = name + '*'
     prog = re.compile(pattern)
     images = []
-    clicked = 0
     
     for _, _, files in os.walk(IMAGE_FOLDER):  
         for filename in files:
             if prog.match(filename) is not None:
                 images.append(os.path.join(IMAGE_FOLDER, filename))
+
+    if len(images) <= 0:
+        return
 
     windowName = name + " - " + str(int(round(distance_km))) + " m"
     image = cv.imread(images[0],cv.IMREAD_UNCHANGED)
