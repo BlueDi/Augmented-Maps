@@ -1,30 +1,110 @@
 import cv2 as cv
 import numpy as np
+import glob
+import yaml
+import image
 
-line_color = (0, 0, 0)
+line_color = (0, 255, 0)
 line_thickness = 2
 line_size = 25
 fill_color = (0, 255, 0)
 
+def calculate_pyramid(homography, image_base, image_test):
+    mtx, dist = get_calibrations()
+    h, w = image_base.shape[:2]
+    #retval, rotations, translations, normals = cv.decomposeHomographyMat(homography, mtx)
+    obj_corners = np.array([[0, 0], [w, 0], [w, h], [0, h]], np.float32)
+    #scene_corners = np.zeros((4, 2), np.float32)
+    print homography
+    scene_corners = cv.perspectiveTransform(obj_corners[None, :, :], homography)
+    scene_corners = scene_corners[0]
 
-def draw_pyramid():
+    image_test = cv.line(image_test, tuple(scene_corners[0]), tuple(scene_corners[1]), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[1]), tuple(scene_corners[2]), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[2]), tuple(scene_corners[3]), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[3]), tuple(scene_corners[0]), line_color, line_thickness)
 
-    img = cv.imread("../resources/db/porto_mapa.png")
-    img2 = cv.imread("../resources/db/porto_mapa_x.png")
-    draw(img)
-
-    # Find the rotation and translation vectors.
-    #ret, rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
-    # project 3D points to image plane
-    #imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
-
-    #rotV, _ = cv.Rodrigues([1,0,0])
-    #points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-    #axisPoints, _ = cv.projectPoints(points, rotV, t, K, (0, 0, 0, 0))
-
-    cv.imshow("pyramid", img)
+    cv.imshow("tesssssst", image_test)
     cv.waitKey(0)
+
+
+def draw_lines(img, corners, imgpts):
+    corner = tuple(corners[0].ravel())
+    height, width, channels = img.shape
+    #corner = tuple([width/2, height/2])
+    img = cv.line(img, corner, tuple(imgpts[0].ravel()), line_color, line_thickness)
+    img = cv.line(img, corner, tuple(imgpts[1].ravel()), line_color, line_thickness)
+    img = cv.line(img, corner, tuple(imgpts[2].ravel()), line_color, line_thickness)
+    img = cv.line(img, corner, tuple(imgpts[3].ravel()), line_color, line_thickness)
+
+    img = cv.line(img, tuple(imgpts[0].ravel()), tuple(imgpts[1].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(imgpts[2].ravel()), tuple(imgpts[0].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(imgpts[1].ravel()), tuple(imgpts[3].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(imgpts[2].ravel()), tuple(imgpts[3].ravel()), line_color, line_thickness)
     return img
+
+def calibrate():
+    '''
+    Calibrates the camera with images from the chessboard folder, and saves the data into a yaml file
+    '''
+    # termination criteria
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+    # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+    objp = np.zeros((6 * 9, 3), np.float32)
+    objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
+
+    # Arrays to store object points and image points from all the images.
+    objpoints = []  # 3d point in real world space
+    imgpoints = []  # 2d points in image plane.
+    images = glob.glob('../resources/chessboard/*.jpg')
+    for fname in images:
+        img = cv.imread(fname)
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        # Find the chess board corners
+        ret, corners = cv.findChessboardCorners(gray, (9, 6), None)
+        # If found, add object points, image points (after refining them)
+        if ret == True:
+            objpoints.append(objp)
+            corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+            imgpoints.append(corners)
+            # Draw and display the corners
+            cv.drawChessboardCorners(img, (9, 6), corners2, ret)
+            cv.imshow('img', img)
+            cv.waitKey(500)
+    cv.destroyAllWindows()
+
+    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+    data = {'camera_matrix': np.asarray(mtx), 'dist_coeff': dist}
+
+    print("Saving calibrations in file camera_calib.yaml")
+
+    with open('../resources/calibrations/camera_calib.yaml', 'w') as f:
+        yaml.dump(data, f)
+
+    # calculate mean error -> the closer to 0, the better it is
+    mean_error = 0
+    for i in xrange(len(objpoints)):
+        imgpoints2, _ = cv.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+        error = cv.norm(imgpoints[i], imgpoints2, cv.NORM_L2) / len(imgpoints2)
+        mean_error += error
+    print("total error: {}" . format(mean_error / len(objpoints)))
+
+
+def get_calibrations():
+    '''
+    Loads camera calibration data from file
+    '''
+    print("Loading camera calibrations from file")
+
+    with open('../resources/calibrations/camera_calib.yaml') as f:
+        calibrations = yaml.load(f)
+
+    mtx = calibrations.get('camera_matrix')
+    dist = calibrations.get('dist_coeff')
+
+    return mtx, dist
 
 
 def draw(img):
@@ -75,14 +155,15 @@ def draw(img):
     print(rvecs)
 
 
-def get_corners(width, height):
+def get_corners(img):
+    height, width, channels = img.shape
     center = [width/2, height/2]
     corner_up_left = [width/2 - line_size/2, height/2 - line_size/2]
     corner_up_right= [width/2 + line_size/2, height/2 - line_size/2]
     corner_bottom_left = [width / 2 - line_size / 2, height / 2 + line_size / 2]
     corner_bottom_right = [width / 2 + line_size / 2, height / 2 + line_size / 2]
 
-    return center, corner_up_left, corner_up_right, corner_bottom_left, corner_bottom_right
+    return np.array([center, corner_up_left, corner_up_right, corner_bottom_left, corner_bottom_right], np.float32)
 
 
 

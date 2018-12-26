@@ -3,6 +3,7 @@ import os
 import database as db
 import display as disp
 import image as img
+import pyramid as pyr
 import kaze
 import numpy as np
 import utils
@@ -14,10 +15,11 @@ import utils
 DB_FP = '../resources/feature_points.pkl'
 DB_POI = '../resources/points_of_interest.pkl'
 IMAGE_BASE = '../resources/db/porto_original.png'
-IMAGE_TEST = '../resources/test/porto_rotate_plus.jpg'
+IMAGE_TEST = '../resources/test/porto_rotate.jpg'
 IMAGE_FOLDER = '../resources/images'
 
 DEBUG = False
+CALIBRATE = False
 
 #SCALE cada 57 pixeis sao 290 metros
 
@@ -35,7 +37,8 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
     yCenter = int(round(heigth/2.0))
 
     if DEBUG: print("Placing center")
-    disp.place_center(image_test_display, xCenter, yCenter)
+    pyr.calculate_pyramid(homography, image_base_display, image_test_display)
+    #disp.place_center(image_test_display, xCenter, yCenter)
 
     if DEBUG: print("Mapping center to original image")
     xOriginal, yOriginal = utils.map_coordinates(inverse, xCenter, yCenter)
@@ -98,16 +101,24 @@ def get_kp(file_name):
 def parse_arguments():
     '''Checks for flags'''
     parser = argparse.ArgumentParser(description="Augment the map image")
-    parser.add_argument('-d','--debug', action='store_true', help='Debug Mode')
+    parser.add_argument('-d', '--debug', action='store_true', help='Debug Mode')
+    parser.add_argument('-c', '--calibrate', action='store_true', help='Camera Calibration Mode')
     args = parser.parse_args()
-    global DEBUG 
+    global DEBUG
+    global CALIBRATE
     DEBUG = args.debug
+    CALIBRATE = args.calibrate
 
 
 def main():
 
     '''Initializing Augmentation'''
     parse_arguments()
+
+    if CALIBRATE:
+        if DEBUG:
+            print("Entering Camera Calibration Mode")
+        pyr.calibrate()
 
     if DEBUG: print("Loading Feature Points")
     kp, desc = get_kp(IMAGE_BASE)
