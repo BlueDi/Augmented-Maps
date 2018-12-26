@@ -6,6 +6,7 @@ import image as img
 import utils
 import sys
 import display as disp
+import pyramid as pyr
 
 
 DB_POI = '../resources/points_of_interest.pkl'
@@ -13,6 +14,7 @@ DB_FP = '../resources/feature_points.pkl'
 IMAGE_BASE = '../resources/db/porto_original.png'
 
 DEBUG = False
+CALIBRATE = False
 
 def calculate_feature_points(file_name, db_path):
     """
@@ -101,14 +103,18 @@ def click_map(database, image_base, window_name="Preparation"):
 def parse_arguments():
     '''Checks for flags'''
     parser = argparse.ArgumentParser(description="Prepare the map image")
-    parser.add_argument('-d','--debug', action='store_true', help='Debug Mode')
+    parser.add_argument('-d', '--debug', action='store_true', help='Debug Mode')
+    parser.add_argument('-c', '--calibrate', action='store_true', help='Camera Calibration Mode')
     args = parser.parse_args()
     global DEBUG
+    global CALIBRATE
     DEBUG = args.debug
+    CALIBRATE = args.calibrate
 
 
 def main():
     '''Initializing Preparation'''
+
     parse_arguments()
 
     if DEBUG: print("Loading Points of interest databse")
@@ -122,6 +128,11 @@ def main():
 
     if DEBUG: print("Calculating Feature Points")
     calculate_feature_points(IMAGE_BASE, DB_FP)
+
+    if CALIBRATE:
+        if DEBUG:
+            print("Entering Camera Calibration Mode")
+        pyr.calibrate()
 
     if DEBUG: print("Successful, exiting Preparation")
 

@@ -13,16 +13,34 @@ def calculate_pyramid(homography, image_base, image_test):
     mtx, dist = get_calibrations()
     h, w = image_base.shape[:2]
     #retval, rotations, translations, normals = cv.decomposeHomographyMat(homography, mtx)
-    obj_corners = np.array([[0, 0], [w, 0], [w, h], [0, h]], np.float32)
+
     #scene_corners = np.zeros((4, 2), np.float32)
     print homography
-    scene_corners = cv.perspectiveTransform(obj_corners[None, :, :], homography)
-    scene_corners = scene_corners[0]
 
-    image_test = cv.line(image_test, tuple(scene_corners[0]), tuple(scene_corners[1]), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[1]), tuple(scene_corners[2]), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[2]), tuple(scene_corners[3]), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[3]), tuple(scene_corners[0]), line_color, line_thickness)
+    objp = np.zeros((5, 3), np.float32)
+    objp[0] = [0, 0, 0]
+    objp[1] = [-1, -1, 0]
+    objp[2] = [-1, 1, 0]
+    objp[3] = [1, 1, 0]
+    objp[4] = [1, -1, 0]
+
+    imagePoints = np.array(get_corners(image_base), np.float32)
+
+    #retval, rvec, tvec = cv.solvePnP(objp, imagePoints, mtx, dist)
+
+
+    # A TENTAR DESENHAR RETANGULO A VOLTA DE MAPA
+
+
+    #pts = np.float32([[x, y]]).reshape(-1, 1, 2)
+    obj_corners = np.array([[100, 100], [150, 100], [150, 150], [100, 150]], np.float32).reshape(-1, 1, 2)
+    scene_corners = cv.perspectiveTransform(obj_corners, homography)
+    #scene_corners = scene_corners[0]
+
+    image_test = cv.line(image_test, tuple(scene_corners[0].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[1].ravel()), tuple(scene_corners[2].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[2].ravel()), tuple(scene_corners[3].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[3].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
 
     cv.imshow("tesssssst", image_test)
     cv.waitKey(0)

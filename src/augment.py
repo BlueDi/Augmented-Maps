@@ -19,7 +19,6 @@ IMAGE_TEST = '../resources/test/porto_rotate.jpg'
 IMAGE_FOLDER = '../resources/images'
 
 DEBUG = False
-CALIBRATE = False
 
 #SCALE cada 57 pixeis sao 290 metros
 
@@ -37,8 +36,7 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
     yCenter = int(round(heigth/2.0))
 
     if DEBUG: print("Placing center")
-    pyr.calculate_pyramid(homography, image_base_display, image_test_display)
-    #disp.place_center(image_test_display, xCenter, yCenter)
+    disp.place_center(image_test_display, xCenter, yCenter)
 
     if DEBUG: print("Mapping center to original image")
     xOriginal, yOriginal = utils.map_coordinates(inverse, xCenter, yCenter)
@@ -73,6 +71,8 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
 
     if DEBUG: print("Placing closest point")
     if(closest_point['name'] is not None):
+        # Temporary, until it works. Then, x and y of the interest place point will be sent
+        pyr.calculate_pyramid(homography, image_base_display, image_test_display)
         disp.place_intereset_point(image_test_display, closest_point, distance_km)
 
     if DEBUG: print("Placing compass")
@@ -102,23 +102,15 @@ def parse_arguments():
     '''Checks for flags'''
     parser = argparse.ArgumentParser(description="Augment the map image")
     parser.add_argument('-d', '--debug', action='store_true', help='Debug Mode')
-    parser.add_argument('-c', '--calibrate', action='store_true', help='Camera Calibration Mode')
     args = parser.parse_args()
     global DEBUG
-    global CALIBRATE
     DEBUG = args.debug
-    CALIBRATE = args.calibrate
 
 
 def main():
 
     '''Initializing Augmentation'''
     parse_arguments()
-
-    if CALIBRATE:
-        if DEBUG:
-            print("Entering Camera Calibration Mode")
-        pyr.calibrate()
 
     if DEBUG: print("Loading Feature Points")
     kp, desc = get_kp(IMAGE_BASE)
