@@ -4,9 +4,9 @@ import glob
 import yaml
 import image
 
-line_color = (0, 255, 0)
+line_color = (0, 250, 0)
 line_thickness = 2
-line_size = 30
+line_size = 27
 fill_color = (0, 255, 0)
 
 def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
@@ -24,15 +24,15 @@ def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
     objp[0] = [1, 1, 1]
     objp[1] = [0, 0, 0]
     objp[2] = [2, 0, 0]
-    objp[3] = [2, 2, 0]
-    objp[4] = [0, 2, 2]
+    objp[3] = [2, 2, 1]
+    objp[4] = [0, 2, 1]
 
     #imagePoints = np.array(get_corners(image_base), np.float32)
 
     # definir os pontos da imagem num espaco 2d
     h, w = image_base.shape[:2]
     image_corners = get_corners(pos_x, pos_y)
-    image_corners = np.array([[415, 415], [400, 400], [400, 430], [430, 430], [430, 400]], np.float32)
+    #image_corners = np.array([[580, 260], [560, 240], [560, 280], [600, 280], [600, 240]], np.float32)
     rotV = rot[0]
     #scene_corners = cv.perspectiveTransform(obj_corners, rotV)
 
@@ -47,38 +47,33 @@ def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
     # projetar os pontos de 3d para 2d - ERRO AQUI
     scene_corners, _ = cv.projectPoints(objp, rotV, np.array(translVector), mtx, dist)
 
-    cv.circle(image_test, tuple(scene_corners[0].ravel()), 7, line_color, line_thickness)
-    cv.circle(image_test, tuple(scene_corners[1].ravel()), 7, line_color, line_thickness)
-    cv.circle(image_test, tuple(scene_corners[2].ravel()), 7, line_color, line_thickness)
-    cv.circle(image_test, tuple(scene_corners[3].ravel()), 7, (255,0,0), line_thickness)
-    cv.circle(image_test, tuple(scene_corners[4].ravel()), 7, line_color, line_thickness)
+    # desenhar a piramide com base nos pontos calculados
+    draw_pyramid(image_test, scene_corners)
 
-    # desenhar linhas
-    image_test = cv.line(image_test, tuple(scene_corners[0].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[1].ravel()), tuple(scene_corners[2].ravel()), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[2].ravel()), tuple(scene_corners[3].ravel()), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[3].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
-
-    image_test = cv.line(image_test, tuple(scene_corners[4].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[4].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
     cv.imshow("tesssssst", image_test)
     cv.waitKey(0)
 
 
-def draw_lines(img, corners, imgpts):
-    corner = tuple(corners[0].ravel())
-    height, width, channels = img.shape
-    #corner = tuple([width/2, height/2])
-    img = cv.line(img, corner, tuple(imgpts[0].ravel()), line_color, line_thickness)
-    img = cv.line(img, corner, tuple(imgpts[1].ravel()), line_color, line_thickness)
-    img = cv.line(img, corner, tuple(imgpts[2].ravel()), line_color, line_thickness)
-    img = cv.line(img, corner, tuple(imgpts[3].ravel()), line_color, line_thickness)
+def draw_pyramid(img, corners):
+    cv.circle(img, tuple(corners[0].ravel()), 4, line_color, line_thickness)
+    cv.circle(img, tuple(corners[1].ravel()), 4, line_color, line_thickness)
+    cv.circle(img, tuple(corners[2].ravel()), 4, line_color, line_thickness)
+    cv.circle(img, tuple(corners[3].ravel()), 4, line_color, line_thickness)
+    cv.circle(img, tuple(corners[4].ravel()), 4, line_color, line_thickness)
 
-    img = cv.line(img, tuple(imgpts[0].ravel()), tuple(imgpts[1].ravel()), line_color, line_thickness)
-    img = cv.line(img, tuple(imgpts[2].ravel()), tuple(imgpts[0].ravel()), line_color, line_thickness)
-    img = cv.line(img, tuple(imgpts[1].ravel()), tuple(imgpts[3].ravel()), line_color, line_thickness)
-    img = cv.line(img, tuple(imgpts[2].ravel()), tuple(imgpts[3].ravel()), line_color, line_thickness)
-    return img
+    # desenhar linhas
+    img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[1].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[1].ravel()), tuple(corners[2].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[2].ravel()), tuple(corners[3].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[3].ravel()), tuple(corners[0].ravel()), line_color, line_thickness)
+
+    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[0].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[1].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[2].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[3].ravel()), line_color, line_thickness)
+
+    #corners_new = np.array([corners[0].ravel(), corners[1].ravel(), corners[2].ravel(), corners[3].ravel()])
+    #cv.fillPoly(img, pts=corners_new, color=fill_color)
 
 def calibrate():
     '''
@@ -164,42 +159,15 @@ def draw(img):
     cv.line(img, tuple(corner_bottom_right), tuple(corner_bottom_left), line_color, line_thickness)
     cv.line(img, tuple(corner_bottom_left), tuple(corner_up_left), line_color, line_thickness)
 
-    # termination criteria
-    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
-    corners = np.array([center, corner_up_left, corner_up_right, corner_bottom_right, corner_bottom_left], np.float32)
-    objp = np.zeros((5, 3), np.float32)
-    objp[0] = [0, 0, 0]
-    objp[1] = [-1, -1, 0]
-    objp[2] = [-1, 1, 0]
-    objp[3] = [1, 1, 0]
-    objp[4] = [1, -1, 0]
-
-    objpoints = []
-    imgpoints = []
-    # cv.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
-    imgpoints.append(corners)
-
-    objpoints.append(objp)
-    #objp1 = [0,0,1]
-    #objpoints.append(objp1)
-
-
-    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, (img.shape[1], img.shape[0]), None, None)
-    ret, rvecs, tvecs = cv.solvePnP(objp, corners, mtx, dist)
-    #imgpts, jac = cv.projectPoints(corners, rvecs, tvecs, mtx, dist)
-    print(mtx)
-    print(rvecs)
-
 
 def get_corners(pos_x, pos_y):
     center = [pos_x, pos_y]
+    corner_up_right = [pos_x + line_size / 2, pos_y - line_size / 2]
     corner_up_left = [pos_x - line_size / 2, pos_y - line_size / 2]
-    corner_up_right= [pos_x + line_size / 2, pos_y - line_size / 2]
     corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
     corner_bottom_right = [pos_x + line_size / 2, pos_y + line_size / 2]
 
-    return np.array([center, corner_up_left, corner_up_right, corner_bottom_left, corner_bottom_right], np.float32)
+    return np.array([center, corner_up_left, corner_bottom_left, corner_bottom_right, corner_up_right], np.float32)
 
 
 
