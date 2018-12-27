@@ -100,11 +100,14 @@ def get_kp(file_name):
 
 def parse_arguments():
     '''Checks for flags'''
+    global DEBUG
+    global IMAGE_BASE
     parser = argparse.ArgumentParser(description="Augment the map image")
     parser.add_argument('-d', '--debug', action='store_true', help='Debug Mode')
+    parser.add_argument('-ib', '--imagebase', default=IMAGE_BASE, help='Path to the frontal image of the map')
     args = parser.parse_args()
-    global DEBUG
     DEBUG = args.debug
+    IMAGE_BASE = args.imagebase
 
 
 def main():
