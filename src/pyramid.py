@@ -10,37 +10,47 @@ line_size = 25
 fill_color = (0, 255, 0)
 
 def calculate_pyramid(homography, image_base, image_test):
+    # buscar as calibracoes da camara
     mtx, dist = get_calibrations()
-    h, w = image_base.shape[:2]
-    #retval, rotations, translations, normals = cv.decomposeHomographyMat(homography, mtx)
 
-    #scene_corners = np.zeros((4, 2), np.float32)
-    print homography
+    # decompor a homografia nas varias componentes
+    retval, rotations, translations, normals = cv.decomposeHomographyMat(homography, mtx)
 
-    objp = np.zeros((5, 3), np.float32)
+    #obter o vetor de rotacoes a partir da matriz de rotacoes
+    rot = cv.Rodrigues(np.array(rotations))
+
+    # definir os pontos num espaco 3d
+    objp = np.zeros((4, 3), np.float32)
     objp[0] = [0, 0, 0]
-    objp[1] = [-1, -1, 0]
-    objp[2] = [-1, 1, 0]
-    objp[3] = [1, 1, 0]
-    objp[4] = [1, -1, 0]
+    objp[1] = [0, 1, 0]
+    objp[2] = [1, 1, 0]
+    objp[3] = [1, 0, 0]
+    #objp[4] = [1, -1, 0]
 
-    imagePoints = np.array(get_corners(image_base), np.float32)
+    #imagePoints = np.array(get_corners(image_base), np.float32)
 
-    #retval, rvec, tvec = cv.solvePnP(objp, imagePoints, mtx, dist)
+    # definir os pontos da imagem num espaco 2d
+    h, w = image_base.shape[:2]
+    image_corners = np.array([[0, 0], [0, h], [w, h], [w, 0]], np.float32).reshape(-1, 1, 2)
+    rotV = rot[0]
+    #scene_corners = cv.perspectiveTransform(obj_corners, rotV)
 
+    # encontrar a pose do objeto de um espaco 3d para 2d
+    retval, rotVector, translVector = cv.solvePnP(objp, image_corners, mtx, dist, rotV, np.array(translations))
 
-    # A TENTAR DESENHAR RETANGULO A VOLTA DE MAPA
+    print('rotVector: ' + str(rotVector))
+    print('translVector: ' + str(translVector))
+    print('camera matrix: ' + str(mtx))
+    print('dist coeffs: ' + str(dist))
 
+    # projetar os pontos de 3d para 3d - ERRO AQUI
+    #scene_corners, _ = cv.projectPoints(image_corners, rotV, np.array(translVector), mtx, dist)
 
-    #pts = np.float32([[x, y]]).reshape(-1, 1, 2)
-    obj_corners = np.array([[100, 100], [150, 100], [150, 150], [100, 150]], np.float32).reshape(-1, 1, 2)
-    scene_corners = cv.perspectiveTransform(obj_corners, homography)
-    #scene_corners = scene_corners[0]
-
-    image_test = cv.line(image_test, tuple(scene_corners[0].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[1].ravel()), tuple(scene_corners[2].ravel()), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[2].ravel()), tuple(scene_corners[3].ravel()), line_color, line_thickness)
-    image_test = cv.line(image_test, tuple(scene_corners[3].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
+    # desenhar linhas
+    #image_test = cv.line(image_test, tuple(scene_corners[0].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
+    #image_test = cv.line(image_test, tuple(scene_corners[1].ravel()), tuple(scene_corners[2].ravel()), line_color, line_thickness)
+    #image_test = cv.line(image_test, tuple(scene_corners[2].ravel()), tuple(scene_corners[3].ravel()), line_color, line_thickness)
+    #image_test = cv.line(image_test, tuple(scene_corners[3].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
 
     cv.imshow("tesssssst", image_test)
     cv.waitKey(0)
