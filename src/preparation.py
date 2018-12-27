@@ -102,14 +102,17 @@ def click_map(database, image_base, window_name="Preparation"):
 
 def parse_arguments():
     '''Checks for flags'''
+    global DEBUG
+    global CALIBRATE
+    global IMAGE_BASE
     parser = argparse.ArgumentParser(description="Prepare the map image")
     parser.add_argument('-d', '--debug', action='store_true', help='Debug Mode')
     parser.add_argument('-c', '--calibrate', action='store_true', help='Camera Calibration Mode')
+    parser.add_argument('-ib', '--imagebase', default=IMAGE_BASE, help='Path to the frontal image of the map')
     args = parser.parse_args()
-    global DEBUG
-    global CALIBRATE
     DEBUG = args.debug
     CALIBRATE = args.calibrate
+    IMAGE_BASE = args.imagebase
 
 
 def main():
