@@ -71,7 +71,6 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
 
     if DEBUG: print("Placing closest point")
     if(closest_point['name'] is not None):
-        # Temporary, until it works. Then, x and y of the interest place point will be sent
         pyr.calculate_pyramid(homography, image_base_display, image_test_display, closest_point['x'], closest_point['y'])
         disp.place_intereset_point(image_test_display, closest_point, distance_km)
 

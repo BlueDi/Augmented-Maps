@@ -2,14 +2,17 @@ import cv2 as cv
 import numpy as np
 import glob
 import yaml
+import utils
 import image
 
 line_color = (0, 250, 0)
 line_thickness = 2
-line_size = 27
-fill_color = (0, 255, 0)
+line_size = 22
+fill_color = (255, 255, 0)
+
 
 def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
+
     # buscar as calibracoes da camara
     mtx, dist = get_calibrations()
 
@@ -19,22 +22,18 @@ def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
     #obter o vetor de rotacoes a partir da matriz de rotacoes
     rot = cv.Rodrigues(np.array(rotations))
 
-    # definir os pontos num espaco 3d
+    # definir os pontos num espaco 3d - ERRO AQUI
     objp = np.zeros((5, 3), np.float32)
-    objp[0] = [1, 1, 1]
-    objp[1] = [0, 0, 0]
-    objp[2] = [2, 0, 0]
-    objp[3] = [2, 2, 1]
-    objp[4] = [0, 2, 1]
-
-    #imagePoints = np.array(get_corners(image_base), np.float32)
+    objp[0] = [0, 0, 1]
+    objp[1] = [-1, -1, 0]
+    objp[4] = [1, -1, 0]
+    objp[3] = [1, 1, 0]
+    objp[2] = [-1, 1, 0]
 
     # definir os pontos da imagem num espaco 2d
-    h, w = image_base.shape[:2]
     image_corners = get_corners(pos_x, pos_y)
     #image_corners = np.array([[580, 260], [560, 240], [560, 280], [600, 280], [600, 240]], np.float32)
     rotV = rot[0]
-    #scene_corners = cv.perspectiveTransform(obj_corners, rotV)
 
     # encontrar a pose do objeto de um espaco 3d para 2d
     retval, rotVector, translVector = cv.solvePnP(objp, image_corners, mtx, dist, rotV, np.array(translations))
@@ -44,22 +43,22 @@ def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
     print('camera matrix: ' + str(mtx))
     print('dist coeffs: ' + str(dist))
 
-    # projetar os pontos de 3d para 2d - ERRO AQUI
+    # projetar os pontos de 3d para 2d
     scene_corners, _ = cv.projectPoints(objp, rotV, np.array(translVector), mtx, dist)
 
     # desenhar a piramide com base nos pontos calculados
     draw_pyramid(image_test, scene_corners)
 
-    cv.imshow("tesssssst", image_test)
-    cv.waitKey(0)
+    #cv.imshow("tesssssst", image_test)
+    #cv.waitKey(0)
 
 
 def draw_pyramid(img, corners):
     cv.circle(img, tuple(corners[0].ravel()), 4, line_color, line_thickness)
-    cv.circle(img, tuple(corners[1].ravel()), 4, line_color, line_thickness)
-    cv.circle(img, tuple(corners[2].ravel()), 4, line_color, line_thickness)
-    cv.circle(img, tuple(corners[3].ravel()), 4, line_color, line_thickness)
-    cv.circle(img, tuple(corners[4].ravel()), 4, line_color, line_thickness)
+    cv.circle(img, tuple(corners[1].ravel()), 4, (0,0,0), line_thickness)
+    cv.circle(img, tuple(corners[2].ravel()), 4, (0,0,255), line_thickness)
+    cv.circle(img, tuple(corners[3].ravel()), 4, (255,255,0), line_thickness)
+    cv.circle(img, tuple(corners[4].ravel()), 4, (0,255,255), line_thickness)
 
     # desenhar linhas
     img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[1].ravel()), line_color, line_thickness)
