@@ -6,10 +6,10 @@ import image
 
 line_color = (0, 255, 0)
 line_thickness = 2
-line_size = 25
+line_size = 30
 fill_color = (0, 255, 0)
 
-def calculate_pyramid(homography, image_base, image_test):
+def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
     # buscar as calibracoes da camara
     mtx, dist = get_calibrations()
 
@@ -20,18 +20,19 @@ def calculate_pyramid(homography, image_base, image_test):
     rot = cv.Rodrigues(np.array(rotations))
 
     # definir os pontos num espaco 3d
-    objp = np.zeros((4, 3), np.float32)
-    objp[0] = [0, 0, 0]
-    objp[1] = [0, 1, 0]
-    objp[2] = [1, 1, 0]
-    objp[3] = [1, 0, 0]
-    #objp[4] = [1, -1, 0]
+    objp = np.zeros((5, 3), np.float32)
+    objp[0] = [1, 1, 1]
+    objp[1] = [0, 0, 0]
+    objp[2] = [2, 0, 0]
+    objp[3] = [2, 2, 0]
+    objp[4] = [0, 2, 2]
 
     #imagePoints = np.array(get_corners(image_base), np.float32)
 
     # definir os pontos da imagem num espaco 2d
     h, w = image_base.shape[:2]
-    image_corners = np.array([[0, 0], [0, h], [w, h], [w, 0]], np.float32).reshape(-1, 1, 2)
+    image_corners = get_corners(pos_x, pos_y)
+    image_corners = np.array([[415, 415], [400, 400], [400, 430], [430, 430], [430, 400]], np.float32)
     rotV = rot[0]
     #scene_corners = cv.perspectiveTransform(obj_corners, rotV)
 
@@ -43,15 +44,23 @@ def calculate_pyramid(homography, image_base, image_test):
     print('camera matrix: ' + str(mtx))
     print('dist coeffs: ' + str(dist))
 
-    # projetar os pontos de 3d para 3d - ERRO AQUI
-    #scene_corners, _ = cv.projectPoints(image_corners, rotV, np.array(translVector), mtx, dist)
+    # projetar os pontos de 3d para 2d - ERRO AQUI
+    scene_corners, _ = cv.projectPoints(objp, rotV, np.array(translVector), mtx, dist)
+
+    cv.circle(image_test, tuple(scene_corners[0].ravel()), 7, line_color, line_thickness)
+    cv.circle(image_test, tuple(scene_corners[1].ravel()), 7, line_color, line_thickness)
+    cv.circle(image_test, tuple(scene_corners[2].ravel()), 7, line_color, line_thickness)
+    cv.circle(image_test, tuple(scene_corners[3].ravel()), 7, (255,0,0), line_thickness)
+    cv.circle(image_test, tuple(scene_corners[4].ravel()), 7, line_color, line_thickness)
 
     # desenhar linhas
-    #image_test = cv.line(image_test, tuple(scene_corners[0].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
-    #image_test = cv.line(image_test, tuple(scene_corners[1].ravel()), tuple(scene_corners[2].ravel()), line_color, line_thickness)
-    #image_test = cv.line(image_test, tuple(scene_corners[2].ravel()), tuple(scene_corners[3].ravel()), line_color, line_thickness)
-    #image_test = cv.line(image_test, tuple(scene_corners[3].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[0].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[1].ravel()), tuple(scene_corners[2].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[2].ravel()), tuple(scene_corners[3].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[3].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
 
+    image_test = cv.line(image_test, tuple(scene_corners[4].ravel()), tuple(scene_corners[0].ravel()), line_color, line_thickness)
+    image_test = cv.line(image_test, tuple(scene_corners[4].ravel()), tuple(scene_corners[1].ravel()), line_color, line_thickness)
     cv.imshow("tesssssst", image_test)
     cv.waitKey(0)
 
@@ -183,13 +192,12 @@ def draw(img):
     print(rvecs)
 
 
-def get_corners(img):
-    height, width, channels = img.shape
-    center = [width/2, height/2]
-    corner_up_left = [width/2 - line_size/2, height/2 - line_size/2]
-    corner_up_right= [width/2 + line_size/2, height/2 - line_size/2]
-    corner_bottom_left = [width / 2 - line_size / 2, height / 2 + line_size / 2]
-    corner_bottom_right = [width / 2 + line_size / 2, height / 2 + line_size / 2]
+def get_corners(pos_x, pos_y):
+    center = [pos_x, pos_y]
+    corner_up_left = [pos_x - line_size / 2, pos_y - line_size / 2]
+    corner_up_right= [pos_x + line_size / 2, pos_y - line_size / 2]
+    corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
+    corner_bottom_right = [pos_x + line_size / 2, pos_y + line_size / 2]
 
     return np.array([center, corner_up_left, corner_up_right, corner_bottom_left, corner_bottom_right], np.float32)
 
