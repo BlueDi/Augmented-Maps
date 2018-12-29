@@ -33,7 +33,7 @@ def image_resize(image, width = None, height = None, inter = cv.INTER_AREA):
     if(w >= h and w > 1000):
         width = 1000
     elif(w < h and h > 1000):
-        height = 1000
+        height = 650
 
     # if both the width and height are None, then return the
     # original image
