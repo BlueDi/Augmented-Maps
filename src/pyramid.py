@@ -95,10 +95,10 @@ def get_corners(pos_x, pos_y):
     '''
 
     vertex = [pos_x, pos_y - (2*line_size/3)]
-    corner_up_right = [pos_x + line_size / 2, pos_y - line_size / 2]
-    corner_up_left = [pos_x - line_size / 2, pos_y - line_size / 2]
-    corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
-    corner_bottom_right = [pos_x + line_size / 2, pos_y + line_size / 2]
+    corner_up_right = [pos_x + line_size / 3, pos_y - line_size / 2]
+    corner_up_left = [pos_x - line_size / 3, pos_y - line_size / 2]
+    corner_bottom_left = [pos_x - line_size / 3, pos_y + line_size / 2]
+    corner_bottom_right = [pos_x + line_size / 3, pos_y + line_size / 2]
 
     return np.array([vertex, corner_up_left, corner_bottom_left, corner_bottom_right, corner_up_right], np.float32)
 
