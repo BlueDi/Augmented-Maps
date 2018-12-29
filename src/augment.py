@@ -15,7 +15,7 @@ import utils
 DB_FP = '../resources/feature_points.pkl'
 DB_POI = '../resources/points_of_interest.pkl'
 IMAGE_BASE = '../resources/db/porto_original.png'
-IMAGE_TEST = '../resources/test/porto_rotate.jpg'
+IMAGE_TEST = '../resources/test/porto_half.jpg'
 IMAGE_FOLDER = '../resources/images'
 
 DEBUG = False
@@ -71,7 +71,7 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
 
     if DEBUG: print("Placing closest point")
     if(closest_point['name'] is not None):
-        pyr.calculate_pyramid(homography, image_base_display, image_test_display, closest_point['x'], closest_point['y'])
+        pyr.calculate_pyramid(homography, image_test_display, closest_point['x'], closest_point['y'])
         disp.place_intereset_point(image_test_display, closest_point, distance_km)
 
     if DEBUG: print("Placing compass")

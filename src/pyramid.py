@@ -7,50 +7,59 @@ import image
 
 line_color = (0, 0, 0)
 line_thickness = 2
-line_size = 10
+line_size = 20
 fill_color = (0, 255, 0)
 
 
-def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
+def calculate_pyramid(homography, image_test, pos_x, pos_y):
 
-    # buscar as calibracoes da camara
+    '''
+    Calculates the position of the pyramid and places it
+    :param homography:
+    :param image_test:
+    :param pos_x:
+    :param pos_y:
+    :return:
+    '''
+
+    # get camera calibrations
     mtx, dist = get_calibrations()
 
-    # decompor a homografia nas varias componentes
+    # decompose the homography into its various components
     retval, rotations, translations, normals = cv.decomposeHomographyMat(homography, mtx)
 
-    #obter o vetor de rotacoes a partir da matriz de rotacoes
+    # get the rotation vector from the rotation matrix
     rot = cv.Rodrigues(np.array(rotations))
-
-    # definir os pontos num espaco 3d - ERRO AQUI
-    objp = np.zeros((5, 3), np.float32)
-    objp[0] = [0, 0, 1]
-    objp[1] = [-1, -1, 0]
-    objp[4] = [1, -1, 0]
-    objp[3] = [1, 1, 0]
-    objp[2] = [-1, 1, 0]
-
-    # definir os pontos da imagem num espaco 2d
-    image_corners = get_corners(pos_x, pos_y)
-    #image_corners = np.array([[580, 260], [560, 240], [560, 280], [600, 280], [600, 240]], np.float32)
     rotV = rot[0]
 
-    # encontrar a pose do objeto de um espaco 3d para 2d
+    # define the points in a 3D space
+    objp = np.zeros((5, 3), np.float32)
+    objp[0] = [0, 0, 0]
+    objp[1] = [-1, -1, 0]
+    objp[2] = [-1, 1, 0]
+    objp[3] = [1, 1, 0]
+    objp[4] = [1, -1, 0]
+
+    # define the points of the image in a 2D space
+    image_corners = get_corners(pos_x, pos_y)
+
+    # find the object pose from a 3D to a 2D space
     retval, rotVector, translVector = cv.solvePnP(objp, image_corners, mtx, dist, rotV, np.array(translations))
 
-    print('rotVector: ' + str(rotVector))
-    print('translVector: ' + str(translVector))
-    print('camera matrix: ' + str(mtx))
-    print('dist coeffs: ' + str(dist))
-
-    # projetar os pontos de 3d para 2d
+    # project the points from 3D to 2D
     scene_corners, _ = cv.projectPoints(objp, rotV, np.array(translVector), mtx, dist)
 
-    # desenhar a piramide com base nos pontos calculados
+    # draw the pyramid based on the calculated points
     draw_pyramid(image_test, scene_corners)
 
 
 def draw_pyramid(img, corners):
+    '''
+    Draws the pyramid in the given image
+    :param img:
+    :param corners:
+    :return:
+    '''
 
     print(corners)
     # draw vertices
@@ -60,7 +69,7 @@ def draw_pyramid(img, corners):
     cv.circle(img, tuple(corners[3].ravel()), 4, (255,255,0), line_thickness) # cyan
     cv.circle(img, tuple(corners[4].ravel()), 4, (0,255,255), line_thickness) # yellow
 
-    # fill polygon
+    # fill pyramid base
     contours = np.array([corners[1].ravel(), corners[2].ravel(), corners[3].ravel(), corners[4].ravel()], 'int32')
     cv.fillPoly(img, pts=[contours], color=fill_color)
 
@@ -75,6 +84,23 @@ def draw_pyramid(img, corners):
     img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[2].ravel()), line_color, line_thickness)
     img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[3].ravel()), line_color, line_thickness)
     img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[4].ravel()), line_color, line_thickness)
+
+
+def get_corners(pos_x, pos_y):
+    '''
+    Gets the pyramid vertices based on the center point
+    :param pos_x:
+    :param pos_y:
+    :return:
+    '''
+
+    vertex = [pos_x, pos_y - line_size]
+    corner_up_right = [pos_x + line_size / 2, pos_y - line_size / 2]
+    corner_up_left = [pos_x - line_size / 2, pos_y - line_size / 2]
+    corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
+    corner_bottom_right = [pos_x + line_size / 2, pos_y + line_size / 2]
+
+    return np.array([vertex, corner_up_left, corner_bottom_left, corner_bottom_right, corner_up_right], np.float32)
 
 
 def calibrate():
@@ -139,37 +165,3 @@ def get_calibrations():
     dist = calibrations.get('dist_coeff')
 
     return mtx, dist
-
-
-def draw(img):
-    height, width, channels = img.shape
-    center, corner_up_left, corner_up_right, corner_bottom_left, corner_bottom_right = get_corners(width, height)
-
-    # fill the whole polygon with fill_color
-    corners = np.array([corner_up_left, corner_up_right, corner_bottom_right, corner_bottom_left])
-    cv.fillPoly(img, pts=[corners], color=fill_color)
-
-    # draw all lines from the center to the corners
-    cv.line(img, tuple(center), tuple(corner_up_left), line_color, line_thickness)
-    cv.line(img, tuple(center), tuple(corner_up_right), line_color, line_thickness)
-    cv.line(img, tuple(center), tuple(corner_bottom_left), line_color, line_thickness)
-    cv.line(img, tuple(center), tuple(corner_bottom_right), line_color, line_thickness)
-
-    # connect all corners
-    cv.line(img, tuple(corner_up_left), tuple(corner_up_right), line_color, line_thickness)
-    cv.line(img, tuple(corner_up_right), tuple(corner_bottom_right), line_color, line_thickness)
-    cv.line(img, tuple(corner_bottom_right), tuple(corner_bottom_left), line_color, line_thickness)
-    cv.line(img, tuple(corner_bottom_left), tuple(corner_up_left), line_color, line_thickness)
-
-
-def get_corners(pos_x, pos_y):
-    center = [pos_x, pos_y]
-    corner_up_right = [pos_x + line_size / 2, pos_y - line_size / 2]
-    corner_up_left = [pos_x - line_size / 2, pos_y - line_size / 2]
-    corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
-    corner_bottom_right = [pos_x + line_size / 2, pos_y + line_size / 2]
-
-    return np.array([center, corner_up_left, corner_bottom_left, corner_bottom_right, corner_up_right], np.float32)
-
-
-
