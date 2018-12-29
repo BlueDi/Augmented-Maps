@@ -2,12 +2,14 @@ import cv2 as cv
 import numpy as np
 import glob
 import yaml
-import utils
-import image
 
+# pyramid line color
 line_color = (0, 0, 0)
+# pyramid line thickness
 line_thickness = 2
+# pyramid distance between points
 line_size = 20
+# color of the base of the pyramid
 fill_color = (0, 255, 0)
 
 
@@ -21,6 +23,8 @@ def calculate_pyramid(homography, image_test, pos_x, pos_y):
     :param pos_y:
     :return:
     '''
+
+    print("Calculating pyramid position")
 
     # get camera calibrations
     mtx, dist = get_calibrations()
@@ -50,6 +54,7 @@ def calculate_pyramid(homography, image_test, pos_x, pos_y):
     scene_corners, _ = cv.projectPoints(objp, rotV, np.array(translVector), mtx, dist)
 
     # draw the pyramid based on the calculated points
+    print("Drawing pyramid in the image")
     draw_pyramid(image_test, scene_corners)
 
 
@@ -61,13 +66,12 @@ def draw_pyramid(img, corners):
     :return:
     '''
 
-    print(corners)
     # draw vertices
-    cv.circle(img, tuple(corners[0].ravel()), 4, (255,0,255), line_thickness) # pink
-    cv.circle(img, tuple(corners[1].ravel()), 4, (0,0,0), line_thickness) # black
-    cv.circle(img, tuple(corners[2].ravel()), 4, (0,0,255), line_thickness) # red
-    cv.circle(img, tuple(corners[3].ravel()), 4, (255,255,0), line_thickness) # cyan
-    cv.circle(img, tuple(corners[4].ravel()), 4, (0,255,255), line_thickness) # yellow
+    cv.circle(img, tuple(corners[0].ravel()), 4, (255, 0, 255), line_thickness)   # pink
+    cv.circle(img, tuple(corners[1].ravel()), 4, (0, 0, 0), line_thickness)       # black
+    cv.circle(img, tuple(corners[2].ravel()), 4, (0, 0, 255), line_thickness)     # red
+    cv.circle(img, tuple(corners[3].ravel()), 4, (255, 255, 0), line_thickness)   # cyan
+    cv.circle(img, tuple(corners[4].ravel()), 4, (0, 255, 255), line_thickness)   # yellow
 
     # fill pyramid base
     contours = np.array([corners[1].ravel(), corners[2].ravel(), corners[3].ravel(), corners[4].ravel()], 'int32')
@@ -88,7 +92,9 @@ def draw_pyramid(img, corners):
 
 def get_corners(pos_x, pos_y):
     '''
-    Gets the pyramid vertices based on the center point
+    Gets the pyramid vertices based on the center point.
+    The top, down, left and right positions are calculated based on the line_size variable, divided by 2, so it is not too large
+    The top vertex is in the same x position of the center, and the y is two thirds of the line size above the y of the center
     :param pos_x:
     :param pos_y:
     :return:
@@ -107,6 +113,7 @@ def calibrate():
     '''
     Calibrates the camera with images from the chessboard folder, and saves the data into a yaml file
     '''
+
     # termination criteria
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -149,7 +156,7 @@ def calibrate():
         imgpoints2, _ = cv.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
         error = cv.norm(imgpoints[i], imgpoints2, cv.NORM_L2) / len(imgpoints2)
         mean_error += error
-    print("total error: {}" . format(mean_error / len(objpoints)))
+    print("Reprojection error: {}" . format(mean_error / len(objpoints)))
 
 
 def get_calibrations():
