@@ -5,10 +5,10 @@ import yaml
 import utils
 import image
 
-line_color = (0, 250, 0)
+line_color = (0, 0, 0)
 line_thickness = 2
-line_size = 22
-fill_color = (255, 255, 0)
+line_size = 10
+fill_color = (0, 255, 0)
 
 
 def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
@@ -49,30 +49,31 @@ def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
     # desenhar a piramide com base nos pontos calculados
     draw_pyramid(image_test, scene_corners)
 
-    #cv.imshow("tesssssst", image_test)
-    #cv.waitKey(0)
-
 
 def draw_pyramid(img, corners):
-    cv.circle(img, tuple(corners[0].ravel()), 4, line_color, line_thickness)
-    cv.circle(img, tuple(corners[1].ravel()), 4, (0,0,0), line_thickness)
-    cv.circle(img, tuple(corners[2].ravel()), 4, (0,0,255), line_thickness)
-    cv.circle(img, tuple(corners[3].ravel()), 4, (255,255,0), line_thickness)
-    cv.circle(img, tuple(corners[4].ravel()), 4, (0,255,255), line_thickness)
+    # draw vertices
+    cv.circle(img, tuple(corners[0].ravel()), 4, (255,0,255), line_thickness) # pink
+    cv.circle(img, tuple(corners[1].ravel()), 4, (0,0,0), line_thickness) # black
+    cv.circle(img, tuple(corners[2].ravel()), 4, (0,0,255), line_thickness) # red
+    cv.circle(img, tuple(corners[3].ravel()), 4, (255,255,0), line_thickness) # cyan
+    cv.circle(img, tuple(corners[4].ravel()), 4, (0,255,255), line_thickness) # yellow
 
-    # desenhar linhas
-    img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[1].ravel()), line_color, line_thickness)
+    # fill polygon
+    contours = np.array([corners[1].ravel(), corners[2].ravel(), corners[3].ravel(), corners[4].ravel()], 'int32')
+    cv.fillPoly(img, pts=[contours], color=fill_color)
+
+    # draw lines between corners
+    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[1].ravel()), line_color, line_thickness)
     img = cv.line(img, tuple(corners[1].ravel()), tuple(corners[2].ravel()), line_color, line_thickness)
     img = cv.line(img, tuple(corners[2].ravel()), tuple(corners[3].ravel()), line_color, line_thickness)
-    img = cv.line(img, tuple(corners[3].ravel()), tuple(corners[0].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[3].ravel()), tuple(corners[4].ravel()), line_color, line_thickness)
 
-    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[0].ravel()), line_color, line_thickness)
-    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[1].ravel()), line_color, line_thickness)
-    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[2].ravel()), line_color, line_thickness)
-    img = cv.line(img, tuple(corners[4].ravel()), tuple(corners[3].ravel()), line_color, line_thickness)
+    # draw lines between center and corners
+    img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[1].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[2].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[3].ravel()), line_color, line_thickness)
+    img = cv.line(img, tuple(corners[0].ravel()), tuple(corners[4].ravel()), line_color, line_thickness)
 
-    #corners_new = np.array([corners[0].ravel(), corners[1].ravel(), corners[2].ravel(), corners[3].ravel()])
-    #cv.fillPoly(img, pts=corners_new, color=fill_color)
 
 def calibrate():
     '''
