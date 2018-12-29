@@ -34,10 +34,10 @@ def calculate_pyramid(homography, image_test, pos_x, pos_y):
 
     # define the points in a 3D space
     objp = np.zeros((5, 3), np.float32)
-    objp[0] = [0, 0, 0]
+    objp[0] = [0, 0, 1]
     objp[1] = [-1, -1, 0]
-    objp[2] = [-1, 1, 0]
-    objp[3] = [1, 1, 0]
+    objp[2] = [-1, 1, 1]
+    objp[3] = [1, 1, 1]
     objp[4] = [1, -1, 0]
 
     # define the points of the image in a 2D space
@@ -94,7 +94,7 @@ def get_corners(pos_x, pos_y):
     :return:
     '''
 
-    vertex = [pos_x, pos_y - line_size]
+    vertex = [pos_x, pos_y - (2*line_size/3)]
     corner_up_right = [pos_x + line_size / 2, pos_y - line_size / 2]
     corner_up_left = [pos_x - line_size / 2, pos_y - line_size / 2]
     corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
