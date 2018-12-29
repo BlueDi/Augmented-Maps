@@ -51,6 +51,8 @@ def calculate_pyramid(homography, image_base, image_test, pos_x, pos_y):
 
 
 def draw_pyramid(img, corners):
+
+    print(corners)
     # draw vertices
     cv.circle(img, tuple(corners[0].ravel()), 4, (255,0,255), line_thickness) # pink
     cv.circle(img, tuple(corners[1].ravel()), 4, (0,0,0), line_thickness) # black
