@@ -39,10 +39,10 @@ def calculate_pyramid(homography, image_test, pos_x, pos_y):
     # define the points in a 3D space
     objp = np.zeros((5, 3), np.float32)
     objp[0] = [0, 0, 1]     # vertex
-    objp[1] = [-1, -1, 0]   # top-left
-    objp[2] = [-1, 1, 1]    # bottom-left
-    objp[3] = [1, 1, 1]     # bottom-right
-    objp[4] = [1, -1, 0]    # top-right
+    objp[4] = [-1, -1, 0]   # top-left 1
+    objp[3] = [-1, 1, 1]    # bottom-left 2
+    objp[2] = [1, 1, 1]     # bottom-right 3
+    objp[1] = [1, -1, 0]    # top-right 4
 
     # define the points of the image in a 2D space
     image_corners = get_corners(pos_x, pos_y)
@@ -67,11 +67,11 @@ def draw_pyramid(img, corners):
     '''
 
     # draw vertices
-    #cv.circle(img, tuple(corners[0].ravel()), 4, (255, 0, 255), line_thickness)   # pink
-    #cv.circle(img, tuple(corners[1].ravel()), 4, (0, 0, 0), line_thickness)       # black
-    #cv.circle(img, tuple(corners[2].ravel()), 4, (0, 0, 255), line_thickness)     # red
-    #cv.circle(img, tuple(corners[3].ravel()), 4, (255, 255, 0), line_thickness)   # cyan
-    #cv.circle(img, tuple(corners[4].ravel()), 4, (0, 255, 255), line_thickness)   # yellow
+    cv.circle(img, tuple(corners[0].ravel()), 4, (255, 0, 255), line_thickness)   # pink
+    cv.circle(img, tuple(corners[1].ravel()), 4, (0, 0, 0), line_thickness)       # black
+    cv.circle(img, tuple(corners[2].ravel()), 4, (0, 0, 255), line_thickness)     # red
+    cv.circle(img, tuple(corners[3].ravel()), 4, (255, 255, 0), line_thickness)   # cyan
+    cv.circle(img, tuple(corners[4].ravel()), 4, (0, 255, 255), line_thickness)   # yellow
 
     # fill pyramid base
     contours = np.array([corners[1].ravel(), corners[2].ravel(), corners[3].ravel(), corners[4].ravel()], 'int32')
@@ -100,13 +100,13 @@ def get_corners(pos_x, pos_y):
     :return:
     '''
 
-    vertex = [pos_x, pos_y - (2*line_size/3)]
+    vertex = [pos_x, pos_y ]
     corner_up_right = [pos_x + line_size / 2, pos_y - line_size / 2]
     corner_up_left = [pos_x - line_size / 2, pos_y - line_size / 2]
     corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
     corner_bottom_right = [pos_x + line_size / 2, pos_y + line_size / 2]
 
-    return np.array([vertex, corner_up_left, corner_bottom_left, corner_bottom_right, corner_up_right], np.float32)
+    return np.array([vertex, corner_up_right, corner_bottom_right, corner_bottom_left, corner_up_left], np.float32)
 
 
 def calibrate():
