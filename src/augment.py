@@ -19,6 +19,7 @@ IMAGE_TEST = '../resources/test/porto_half.jpg'
 IMAGE_FOLDER = '../resources/images'
 
 DEBUG = False
+PYRAMID = False
 
 #SCALE cada 57 pixeis sao 290 metros
 
@@ -71,8 +72,11 @@ def applyAugmentedComponents(homography, image_base_display, image_test_display)
 
     if DEBUG: print("Placing closest point")
     if(closest_point['name'] is not None):
-        pyr.calculate_pyramid(homography, image_test_display, closest_point['x'], closest_point['y'])
-        disp.place_intereset_point(image_test_display, closest_point, distance_km)
+        if PYRAMID:
+            pyr.calculate_pyramid(homography, image_test_display, closest_point['x'], closest_point['y'])
+        else:
+            disp.place_intereset_point(image_test_display, closest_point)
+        disp.place_distance_and_name(image_test_display, closest_point, distance_km, )
 
     if DEBUG: print("Placing compass")
     disp.place_compass(inverse, image_test_display, xCenter, yCenter, closest_point['x'], closest_point['y'])
@@ -102,14 +106,17 @@ def parse_arguments():
     global DEBUG
     global IMAGE_BASE
     global IMAGE_TEST
+    global PYRAMID
     parser = argparse.ArgumentParser(description="Augment the map image")
     parser.add_argument('-d', '--debug', action='store_true', help='Debug Mode')
     parser.add_argument('-ib', '--imagebase', default=IMAGE_BASE, help='Path to the frontal image of the map')
     parser.add_argument('-it', '--imagetest', default=IMAGE_TEST, help='Path to the image to be augmented')
+    parser.add_argument('-pyr', '--pyramid', action='store_true', help='Place pyramid instead of circle')
     args = parser.parse_args()
     DEBUG = args.debug
     IMAGE_BASE = args.imagebase
     IMAGE_TEST = args.imagetest
+    PYRAMID = args.pyramid
 
 
 def main():

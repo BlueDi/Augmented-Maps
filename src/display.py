@@ -148,16 +148,18 @@ def place_compass(inverse, image_test, xCenter, yCenter, xInterest, yInterest):
     cv.drawContours(image_test, [triangle_cnt_2], 0, (0,0,255), -1)
     pass
 
-def place_intereset_point(image, point, distance=None):
+def place_intereset_point(image, point):
     if(point['name'] is not None): #Green
         cv.circle(image, (point['x'], point['y']), CIRCLE_SIZE, (19, 124, 17), -1)
         cv.circle(image, (point['x'], point['y']), CIRCLE_SIZE, (0,0,0), 1)
-        if distance is not None:
-            label = point['name'] + " - " + str(int(round(distance))) + " m"
-        else:
-            label = point['name']
-        place_label(point['x'], point['y'], label , image)
     return image
+
+def place_distance_and_name(image, point, distance=None):
+    if distance is not None:
+        label = point['name'] + " - " + str(int(round(distance))) + " m"
+    else:
+        label = point['name']
+    place_label(point['x'], point['y'], label , image)
 
 def place_label(xCenter, yCenter, label, image):
     size = cv.getTextSize(label, cv.FONT_HERSHEY_PLAIN, 1, 2)

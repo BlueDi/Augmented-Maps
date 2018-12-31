@@ -67,11 +67,11 @@ def draw_pyramid(img, corners):
     '''
 
     # draw vertices
-    cv.circle(img, tuple(corners[0].ravel()), 4, (255, 0, 255), line_thickness)   # pink
-    cv.circle(img, tuple(corners[1].ravel()), 4, (0, 0, 0), line_thickness)       # black
-    cv.circle(img, tuple(corners[2].ravel()), 4, (0, 0, 255), line_thickness)     # red
-    cv.circle(img, tuple(corners[3].ravel()), 4, (255, 255, 0), line_thickness)   # cyan
-    cv.circle(img, tuple(corners[4].ravel()), 4, (0, 255, 255), line_thickness)   # yellow
+    #cv.circle(img, tuple(corners[0].ravel()), 4, (255, 0, 255), line_thickness)   # pink
+    #cv.circle(img, tuple(corners[1].ravel()), 4, (0, 0, 0), line_thickness)       # black
+    #cv.circle(img, tuple(corners[2].ravel()), 4, (0, 0, 255), line_thickness)     # red
+    #cv.circle(img, tuple(corners[3].ravel()), 4, (255, 255, 0), line_thickness)   # cyan
+    #cv.circle(img, tuple(corners[4].ravel()), 4, (0, 255, 255), line_thickness)   # yellow
 
     # fill pyramid base
     contours = np.array([corners[1].ravel(), corners[2].ravel(), corners[3].ravel(), corners[4].ravel()], 'int32')

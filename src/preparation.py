@@ -72,6 +72,7 @@ def click_map_callback(event, x, y, flags, param):
             'y': y
         }
         disp.place_intereset_point(param['img'], point)
+        disp.place_distance_and_name(param['img'], point)
         cv.imshow(param['window'],param['img'])
 
 
@@ -90,6 +91,7 @@ def click_map(database, image_base, window_name="Preparation"):
     for name, point in database.items():
         point = {'name': name, 'x': point['x'], 'y': point['y']}
         disp.place_intereset_point(map_image, point)
+        disp.place_distance_and_name(map_image, point)
 
     if DEBUG: print("Creating callback")
     param = {'db': database, 'img': map_image, 'window': window_name}
