@@ -40,8 +40,8 @@ def calculate_pyramid(homography, image_test, pos_x, pos_y):
     objp = np.zeros((5, 3), np.float32)
     objp[0] = [0, 0, 1]     # vertex
     objp[1] = [-1, -1, 0]   # top-left
-    objp[2] = [-1, 1, 0]    # bottom-left
-    objp[3] = [1, 1, 0]     # bottom-right
+    objp[2] = [-1, 1, 1]    # bottom-left
+    objp[3] = [1, 1, 1]     # bottom-right
     objp[4] = [1, -1, 0]    # top-right
 
     # define the points of the image in a 2D space
