@@ -6,9 +6,9 @@ import yaml
 # pyramid line color
 line_color = (0, 0, 0)
 # pyramid line thickness
-line_thickness = 2
+line_thickness = 22
 # pyramid distance between points
-line_size = 20
+line_size = 10
 # color of the base of the pyramid
 fill_color = (0, 255, 0)
 
@@ -39,10 +39,10 @@ def calculate_pyramid(homography, image_test, pos_x, pos_y):
     # define the points in a 3D space
     objp = np.zeros((5, 3), np.float32)
     objp[0] = [0, 0, 1]     # vertex
-    objp[4] = [-1, -1, 0]   # top-left 1
-    objp[3] = [-1, 1, 0]    # bottom-left 2
-    objp[2] = [1, 1, 0]     # bottom-right 3
-    objp[1] = [1, -1, 0]    # top-right 4
+    objp[1] = [-1, -1, 0]   # top-left 1
+    objp[2] = [-1, 1, 0]    # bottom-left 2
+    objp[3] = [1, 1, 0]     # bottom-right 3
+    objp[4] = [1, -1, 0]    # top-right 4
 
     # define the points of the image in a 2D space
     image_corners = get_corners(pos_x, pos_y)
@@ -106,7 +106,7 @@ def get_corners(pos_x, pos_y):
     corner_bottom_left = [pos_x - line_size / 2, pos_y + line_size / 2]
     corner_bottom_right = [pos_x + line_size / 2, pos_y + line_size / 2]
 
-    return np.array([vertex, corner_up_right, corner_bottom_right, corner_bottom_left, corner_up_left], np.float32)
+    return np.array([vertex, corner_up_left, corner_bottom_left, corner_bottom_right, corner_up_right], np.float32)
 
 
 def calibrate():
